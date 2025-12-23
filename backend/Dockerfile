@@ -5,12 +5,11 @@ WORKDIR /app
 
 # Copia package files
 COPY package*.json ./
-COPY prisma ./prisma/
 
 # Installa dipendenze (incluse dev per build)
 RUN npm ci || npm install
 
-# Copia tutto il codice
+# Copia tutto il codice (incluse prisma directory)
 COPY . .
 
 # Genera Prisma Client e build
