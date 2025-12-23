@@ -6,9 +6,14 @@ import { AdminController } from '../http/controllers/AdminController';
 import { AdminLoginUseCase } from '../../application/use-cases/admin/AdminLoginUseCase';
 import { ListDailyBookingsUseCase } from '../../application/use-cases/admin/ListDailyBookingsUseCase';
 import { BlockTimeSlotUseCase } from '../../application/use-cases/admin/BlockTimeSlotUseCase';
+import { CompleteBookingUseCase } from '../../application/use-cases/booking/CompleteBookingUseCase';
 import { JwtStrategy } from '../../infrastructure/auth/JwtStrategy';
 import { JwtAuthService } from '../../infrastructure/auth/JwtAuthService';
 import { PrismaUserRepository } from '../../infrastructure/persistence/repositories/PrismaUserRepository';
+import { PrismaBookingRepository } from '../../infrastructure/persistence/repositories/PrismaBookingRepository';
+import { PrismaBarberRepository } from '../../infrastructure/persistence/repositories/PrismaBarberRepository';
+import { PrismaServiceRepository } from '../../infrastructure/persistence/repositories/PrismaServiceRepository';
+import { PrismaBlockedSlotRepository } from '../../infrastructure/persistence/repositories/PrismaBlockedSlotRepository';
 import { PrismaService } from '../../infrastructure/persistence/repositories/PrismaService';
 import { TenantContext } from '../../infrastructure/tenant/TenantContext';
 import { SystemClock } from '../../infrastructure/adapters/SystemClock';
@@ -34,6 +39,7 @@ import { UuidGenerator } from '../../infrastructure/adapters/UuidGenerator';
     AdminLoginUseCase,
     ListDailyBookingsUseCase,
     BlockTimeSlotUseCase,
+    CompleteBookingUseCase,
 
     // Auth
     JwtStrategy,
@@ -47,6 +53,22 @@ import { UuidGenerator } from '../../infrastructure/adapters/UuidGenerator';
     {
       provide: 'IUserRepository',
       useClass: PrismaUserRepository,
+    },
+    {
+      provide: 'IBookingRepository',
+      useClass: PrismaBookingRepository,
+    },
+    {
+      provide: 'IBarberRepository',
+      useClass: PrismaBarberRepository,
+    },
+    {
+      provide: 'IServiceRepository',
+      useClass: PrismaServiceRepository,
+    },
+    {
+      provide: 'IBlockedSlotRepository',
+      useClass: PrismaBlockedSlotRepository,
     },
 
     // Services
