@@ -28,9 +28,14 @@ RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 COPY backend/ ./
 
 # Pulisci cache Prisma e genera Prisma Client con binary corretto
+# Forza Prisma a rilevare correttamente il sistema
 RUN rm -rf node_modules/.prisma || true && \
     rm -rf node_modules/@prisma/client || true && \
-    npx prisma generate
+    PRISMA_SKIP_POSTINSTALL_GENERATE=false npx prisma generate
+
+# Verifica quale binary è stato generato
+RUN echo "=== Prisma binaries generati ===" && \
+    find node_modules/.prisma/client -name "*.so.node" -o -name "*.node" | head -5
 
 # Build dell'applicazione
 RUN npm run build
