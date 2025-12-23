@@ -1,22 +1,25 @@
 # Dockerfile per Backend - Build dalla root del repository
-# Usa node:20 standard (non slim) per migliore compatibilità con Prisma
-FROM node:20
+# Usa Ubuntu 20.04 (Focal) che ha libssl1.1 nativo per Prisma
+FROM ubuntu:20.04
+
+# Evita prompt interattivi durante apt-get
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Installa Node.js 20 e dipendenze base
+RUN apt-get update && apt-get install -y \
+    curl \
+    ca-certificates \
+    openssl \
+    libssl1.1 \
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Installa dipendenze di sistema per Prisma
-# Installa sia OpenSSL 3.x che compatibilità per 1.1.x se necessario
-RUN apt-get update && apt-get install -y \
-    openssl \
-    ca-certificates \
-    libssl3 \
-    libssl-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-# Crea symlink per libssl.so.1.1 se Prisma lo richiede (workaround)
-RUN if [ ! -f /usr/lib/x86_64-linux-gnu/libssl.so.1.1 ]; then \
-      ln -s /usr/lib/x86_64-linux-gnu/libssl.so.3 /usr/lib/x86_64-linux-gnu/libssl.so.1.1 || true; \
-    fi
+# libssl1.1 è già installato sopra con Ubuntu 20.04
+# Verifica che libssl1.1 sia disponibile
+RUN ls -la /usr/lib/x86_64-linux-gnu/libssl.so.1.1 || echo "⚠️ libssl1.1 non trovato"
 
 # Copia package files dal backend
 COPY backend/package*.json ./
