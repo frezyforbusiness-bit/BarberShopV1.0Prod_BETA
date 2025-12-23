@@ -2,7 +2,8 @@
 nixPkgs = ["nodejs-20_x", "postgresql"]
 
 [phases.install]
-cmds = ["npm ci"]
+# Fallback a npm install se package-lock.json non esiste
+cmds = ["if [ -f package-lock.json ]; then npm ci; else npm install; fi"]
 
 [phases.build]
 cmds = [
