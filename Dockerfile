@@ -23,14 +23,14 @@ RUN npm run build
 
 # Verifica che il build sia stato creato (con debug)
 RUN echo "=== Verifica dist directory ===" && \
-    ls -la dist/ && \
+    ls -la dist/src/ && \
     echo "=== Verifica main.js ===" && \
-    test -f dist/main.js && \
+    test -f dist/src/main.js && \
     echo "✅ Build completato correttamente" || \
-    (echo "❌ Build fallito - dist/main.js non trovato" && ls -la dist/ && exit 1)
+    (echo "❌ Build fallito - dist/src/main.js non trovato" && ls -la dist/ && exit 1)
 
 EXPOSE 3000
 
-# Usa path assoluto per sicurezza
-CMD ["node", "dist/main.js"]
+# Usa path corretto (NestJS compila in dist/src/)
+CMD ["node", "dist/src/main.js"]
 
