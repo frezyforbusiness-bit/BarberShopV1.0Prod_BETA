@@ -1,16 +1,20 @@
 # Dockerfile per Backend - Build dalla root del repository
-FROM node:20-alpine
+# Usa node:20 (non alpine) per migliore compatibilità con Prisma
+FROM node:20-slim
 
 WORKDIR /app
+
+# Installa dipendenze di sistema per Prisma
+RUN apt-get update && apt-get install -y \
+    openssl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copia package files dal backend
 COPY backend/package*.json ./
 
 # Installa dipendenze
 RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
-
-# Installa OpenSSL per Prisma (fix warning e errore libssl.so.1.1)
-RUN apk add --no-cache openssl1.1-compat libc6-compat
 
 # Copia tutto il codice backend (prima del build)
 COPY backend/ ./
