@@ -21,10 +21,16 @@ RUN npx prisma generate
 # Build dell'applicazione
 RUN npm run build
 
-# Verifica che il build sia stato creato
-RUN ls -la dist/ && test -f dist/main.js
+# Verifica che il build sia stato creato (con debug)
+RUN echo "=== Verifica dist directory ===" && \
+    ls -la dist/ && \
+    echo "=== Verifica main.js ===" && \
+    test -f dist/main.js && \
+    echo "✅ Build completato correttamente" || \
+    (echo "❌ Build fallito - dist/main.js non trovato" && ls -la dist/ && exit 1)
 
 EXPOSE 3000
 
-CMD ["npm", "run", "start:prod"]
+# Usa path assoluto per sicurezza
+CMD ["node", "dist/main.js"]
 
