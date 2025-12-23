@@ -6,8 +6,8 @@ WORKDIR /app
 # Copia package files
 COPY package*.json ./
 
-# Installa dipendenze (incluse dev per build)
-RUN npm ci || npm install
+# Installa dipendenze (fallback a npm install se package-lock.json non esiste)
+RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
 # Copia schema Prisma (importante: prima di tutto)
 COPY prisma ./prisma/
