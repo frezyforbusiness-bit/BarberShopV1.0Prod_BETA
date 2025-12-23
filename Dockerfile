@@ -5,12 +5,18 @@ FROM node:20
 WORKDIR /app
 
 # Installa dipendenze di sistema per Prisma
-# Node 20 standard include già molte librerie necessarie
+# Installa sia OpenSSL 3.x che compatibilità per 1.1.x se necessario
 RUN apt-get update && apt-get install -y \
     openssl \
     ca-certificates \
     libssl3 \
+    libssl-dev \
     && rm -rf /var/lib/apt/lists/*
+
+# Crea symlink per libssl.so.1.1 se Prisma lo richiede (workaround)
+RUN if [ ! -f /usr/lib/x86_64-linux-gnu/libssl.so.1.1 ]; then \
+      ln -s /usr/lib/x86_64-linux-gnu/libssl.so.3 /usr/lib/x86_64-linux-gnu/libssl.so.1.1 || true; \
+    fi
 
 # Copia package files dal backend
 COPY backend/package*.json ./
