@@ -3,7 +3,7 @@
   "$comment": "⚠️ IMPORTANTE: Imposta Root Directory a '/backend' nelle Settings di Railway",
   "build": {
     "builder": "NIXPACKS",
-    "buildCommand": "if [ -f package-lock.json ]; then npm ci; else npm install; fi && npx prisma generate && npm run build"
+    "buildCommand": "(npm ci || npm install) && npx prisma generate && npm run build"
   },
   "deploy": {
     "startCommand": "npm run start:prod",

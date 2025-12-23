@@ -1,0 +1,15 @@
+[phases.setup]
+nixPkgs = ["nodejs-20_x"]
+
+[phases.install]
+# Fallback robusto: usa npm install se package-lock.json non esiste (con legacy-peer-deps per React 19)
+cmds = [
+  "npm ci --legacy-peer-deps || npm install --legacy-peer-deps"
+]
+
+[phases.build]
+cmds = ["npm run build"]
+
+[start]
+cmd = "npm run preview"
+
