@@ -9,11 +9,17 @@ COPY package*.json ./
 # Installa dipendenze (incluse dev per build)
 RUN npm ci || npm install
 
-# Copia tutto il codice (incluse prisma directory)
+# Copia schema Prisma (importante: prima di tutto)
+COPY prisma ./prisma/
+
+# Verifica che lo schema esista e genera Prisma Client
+RUN ls -la prisma/ && npx prisma generate
+
+# Copia tutto il resto del codice
 COPY . .
 
-# Genera Prisma Client e build
-RUN npx prisma generate && npm run build
+# Build dell'applicazione (postbuild eseguirà anche prisma generate ma è già fatto)
+RUN npm run build
 
 # Esponi porta
 EXPOSE 3000
