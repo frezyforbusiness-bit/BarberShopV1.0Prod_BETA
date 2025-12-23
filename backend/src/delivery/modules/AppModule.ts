@@ -24,7 +24,10 @@ import { DomainExceptionFilter } from '../http/filters/DomainExceptionFilter';
     },
     TenantContext,
     PrismaService,
-    PrismaShopRepository,
+    {
+      provide: 'IShopRepository',
+      useClass: PrismaShopRepository,
+    },
   ],
 })
 export class AppModule implements NestModule {

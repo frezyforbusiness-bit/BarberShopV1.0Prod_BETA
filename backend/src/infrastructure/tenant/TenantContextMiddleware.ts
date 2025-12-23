@@ -1,4 +1,4 @@
-import { Injectable, NestMiddleware } from '@nestjs/common';
+import { Injectable, NestMiddleware, Inject } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { TenantContext } from './TenantContext';
 import { IShopRepository } from '../../application/ports/IShopRepository';
@@ -7,6 +7,7 @@ import { IShopRepository } from '../../application/ports/IShopRepository';
 export class TenantContextMiddleware implements NestMiddleware {
   constructor(
     private readonly tenantContext: TenantContext,
+    @Inject('IShopRepository')
     private readonly shopRepository: IShopRepository,
   ) {}
 
