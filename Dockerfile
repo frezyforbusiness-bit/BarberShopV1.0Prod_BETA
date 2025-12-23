@@ -12,6 +12,9 @@ RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 # Copia schema Prisma
 COPY backend/prisma ./prisma/
 
+# Installa OpenSSL per Prisma (fix warning)
+RUN apk add --no-cache openssl1.1-compat
+
 # Genera Prisma Client
 RUN npx prisma generate
 
