@@ -1,15 +1,23 @@
+# Backend Dockerfile per Railway
 FROM node:20-alpine
 
 WORKDIR /app
 
+# Copia package files
 COPY package*.json ./
-RUN npm ci
+COPY prisma ./prisma/
 
+# Installa dipendenze (incluse dev per build)
+RUN npm ci || npm install
+
+# Copia tutto il codice
 COPY . .
 
-RUN npm run build
+# Genera Prisma Client e build
+RUN npx prisma generate && npm run build
 
+# Esponi porta
 EXPOSE 3000
 
+# Comando di start
 CMD ["npm", "run", "start:prod"]
-
