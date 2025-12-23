@@ -9,20 +9,20 @@ COPY backend/package*.json ./
 # Installa dipendenze
 RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
-# Copia schema Prisma
-COPY backend/prisma ./prisma/
-
 # Installa OpenSSL per Prisma (fix warning)
 RUN apk add --no-cache openssl1.1-compat
+
+# Copia tutto il codice backend (prima del build)
+COPY backend/ ./
 
 # Genera Prisma Client
 RUN npx prisma generate
 
-# Copia tutto il codice backend
-COPY backend/ ./
-
 # Build dell'applicazione
 RUN npm run build
+
+# Verifica che il build sia stato creato
+RUN ls -la dist/ && test -f dist/main.js
 
 EXPOSE 3000
 
