@@ -9,8 +9,8 @@ COPY backend/package*.json ./
 # Installa dipendenze
 RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
-# Installa OpenSSL per Prisma (fix warning)
-RUN apk add --no-cache openssl1.1-compat
+# Installa OpenSSL per Prisma (fix warning e errore libssl.so.1.1)
+RUN apk add --no-cache openssl1.1-compat libc6-compat
 
 # Copia tutto il codice backend (prima del build)
 COPY backend/ ./
