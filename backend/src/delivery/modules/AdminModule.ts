@@ -9,12 +9,11 @@ import { BlockTimeSlotUseCase } from '../../application/use-cases/admin/BlockTim
 import { CompleteBookingUseCase } from '../../application/use-cases/booking/CompleteBookingUseCase';
 import { JwtStrategy } from '../../infrastructure/auth/JwtStrategy';
 import { JwtAuthService } from '../../infrastructure/auth/JwtAuthService';
-import { PrismaUserRepository } from '../../infrastructure/persistence/repositories/PrismaUserRepository';
-import { PrismaBookingRepository } from '../../infrastructure/persistence/repositories/PrismaBookingRepository';
-import { PrismaBarberRepository } from '../../infrastructure/persistence/repositories/PrismaBarberRepository';
-import { PrismaServiceRepository } from '../../infrastructure/persistence/repositories/PrismaServiceRepository';
-import { PrismaBlockedSlotRepository } from '../../infrastructure/persistence/repositories/PrismaBlockedSlotRepository';
-import { PrismaService } from '../../infrastructure/persistence/repositories/PrismaService';
+import { TypeOrmUserRepository } from '../../infrastructure/persistence/repositories/TypeOrmUserRepository';
+import { TypeOrmBookingRepository } from '../../infrastructure/persistence/repositories/TypeOrmBookingRepository';
+import { TypeOrmBarberRepository } from '../../infrastructure/persistence/repositories/TypeOrmBarberRepository';
+import { TypeOrmServiceRepository } from '../../infrastructure/persistence/repositories/TypeOrmServiceRepository';
+import { TypeOrmBlockedSlotRepository } from '../../infrastructure/persistence/repositories/TypeOrmBlockedSlotRepository';
 import { TenantContext } from '../../infrastructure/tenant/TenantContext';
 import { SystemClock } from '../../infrastructure/adapters/SystemClock';
 import { UuidGenerator } from '../../infrastructure/adapters/UuidGenerator';
@@ -49,26 +48,25 @@ import { UuidGenerator } from '../../infrastructure/adapters/UuidGenerator';
     },
 
     // Repositories
-    PrismaService,
     {
       provide: 'IUserRepository',
-      useClass: PrismaUserRepository,
+      useClass: TypeOrmUserRepository,
     },
     {
       provide: 'IBookingRepository',
-      useClass: PrismaBookingRepository,
+      useClass: TypeOrmBookingRepository,
     },
     {
       provide: 'IBarberRepository',
-      useClass: PrismaBarberRepository,
+      useClass: TypeOrmBarberRepository,
     },
     {
       provide: 'IServiceRepository',
-      useClass: PrismaServiceRepository,
+      useClass: TypeOrmServiceRepository,
     },
     {
       provide: 'IBlockedSlotRepository',
-      useClass: PrismaBlockedSlotRepository,
+      useClass: TypeOrmBlockedSlotRepository,
     },
 
     // Services
