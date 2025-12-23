@@ -19,8 +19,10 @@ RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 # Copia tutto il codice backend (prima del build)
 COPY backend/ ./
 
-# Genera Prisma Client
-RUN npx prisma generate
+# Pulisci cache Prisma e genera Prisma Client con binary corretto
+RUN rm -rf node_modules/.prisma || true && \
+    rm -rf node_modules/@prisma/client || true && \
+    npx prisma generate
 
 # Build dell'applicazione
 RUN npm run build
