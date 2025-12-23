@@ -24,7 +24,7 @@
       "@delivery/*": ["src/delivery/*"]
     }
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "scripts/**/*"],
   "exclude": ["node_modules", "dist", "test"]
 }
 
