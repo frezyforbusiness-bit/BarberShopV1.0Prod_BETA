@@ -1,0 +1,127 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Shop {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  settings  Json     // { openingTime, closingTime, timezone, slotDurationMinutes, bookingAdvanceDays }
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  barbers  Barber[]
+  services Service[]
+  users    User[]
+  bookings Booking[]
+  blockedSlots BlockedSlot[]
+
+  @@index([slug])
+}
+
+model User {
+  id           String   @id @default(uuid())
+  shopId       String
+  email        String
+  passwordHash String
+  role         String   // ADMIN, OWNER
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  shop Shop @relation(fields: [shopId], references: [id], onDelete: Cascade)
+
+  @@unique([shopId, email])
+  @@index([email])
+  @@index([shopId])
+}
+
+model Barber {
+  id           String       @id @default(uuid())
+  shopId       String
+  name         String
+  workSchedule Json         // { monday: { start, end, isWorking }, ... }
+  isActive     Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  shop         Shop         @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  bookings     Booking[]
+  blockedSlots BlockedSlot[]
+
+  @@index([shopId])
+  @@index([shopId, isActive])
+}
+
+model Service {
+  id              String   @id @default(uuid())
+  shopId          String
+  name            String
+  description     String   @default("")
+  durationMinutes Int
+  priceAmount     Decimal  @db.Decimal(10, 2)
+  priceCurrency   String   @default("EUR")
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  shop     Shop      @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  bookings Booking[]
+
+  @@index([shopId])
+  @@index([shopId, isActive])
+}
+
+model Booking {
+  id               String   @id @default(uuid())
+  shopId           String
+  barberId         String
+  serviceId        String
+  customerName     String
+  customerPhone    String
+  customerEmail    String?
+  date             DateTime @db.Date
+  startTime        DateTime
+  endTime          DateTime
+  status           String   // PENDING, CONFIRMED, COMPLETED, CANCELLED
+  cancellationCode String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  shop    Shop    @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  barber  Barber  @relation(fields: [barberId], references: [id], onDelete: Restrict)
+  service Service @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+
+  @@index([shopId, date])
+  @@index([barberId, date])
+  @@index([status])
+  @@index([cancellationCode])
+  @@index([shopId, startTime, endTime])
+}
+
+model BlockedSlot {
+  id        String   @id @default(uuid())
+  shopId    String
+  barberId  String
+  date      DateTime @db.Date
+  startTime DateTime
+  endTime   DateTime
+  reason    String
+  createdAt DateTime @default(now())
+
+  shop   Shop   @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  barber Barber @relation(fields: [barberId], references: [id], onDelete: Cascade)
+
+  @@index([barberId, date])
+  @@index([shopId, date])
+}
+
