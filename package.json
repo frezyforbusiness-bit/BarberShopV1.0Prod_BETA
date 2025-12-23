@@ -1,0 +1,11 @@
+{
+  "name": "barbershop-monorepo",
+  "version": "1.0.0",
+  "description": "Barbershop Booking System - Monorepo",
+  "private": true,
+  "workspaces": [],
+  "scripts": {
+    "postinstall": "echo 'This is a monorepo. Please configure Root Directory in Railway settings.'"
+  }
+}
+

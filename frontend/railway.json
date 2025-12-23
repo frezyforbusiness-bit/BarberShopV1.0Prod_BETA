@@ -1,5 +1,6 @@
 {
   "$schema": "https://railway.app/railway.schema.json",
+  "$comment": "Root Directory deve essere impostato a '/frontend' nelle Settings di Railway",
   "build": {
     "builder": "NIXPACKS",
     "buildCommand": "npm ci && npm run build"

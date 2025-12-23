@@ -1,0 +1,7 @@
+# Railway Monorepo Configuration
+# Questo file configura i servizi del monorepo
+
+[build]
+# Railway userà Nixpacks per rilevare automaticamente il tipo di progetto
+builder = "NIXPACKS"
+
