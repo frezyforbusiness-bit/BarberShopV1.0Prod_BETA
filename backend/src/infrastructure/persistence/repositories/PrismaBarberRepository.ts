@@ -20,7 +20,7 @@ export class PrismaBarberRepository implements IBarberRepository {
       where: { shopId },
     });
 
-    return prismaBarbers.map((b) => this.toDomain(b));
+    return prismaBarbers.map((b: any) => this.toDomain(b));
   }
 
   async save(barber: Barber): Promise<Barber> {

@@ -21,7 +21,7 @@ export class PrismaServiceRepository implements IServiceRepository {
       where: { shopId },
     });
 
-    return prismaServices.map((s) => this.toDomain(s));
+    return prismaServices.map((s: any) => this.toDomain(s));
   }
 
   async save(service: Service): Promise<Service> {

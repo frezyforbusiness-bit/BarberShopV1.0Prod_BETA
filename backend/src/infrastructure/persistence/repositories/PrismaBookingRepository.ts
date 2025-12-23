@@ -75,7 +75,7 @@ export class PrismaBookingRepository implements IBookingRepository {
       },
     });
 
-    return prismaBookings.map((b) => this.toDomain(b));
+    return prismaBookings.map((b: any) => this.toDomain(b));
   }
 
   async findByShopAndDate(shopId: string, date: Date): Promise<Booking[]> {
@@ -94,7 +94,7 @@ export class PrismaBookingRepository implements IBookingRepository {
       },
     });
 
-    return prismaBookings.map((b) => this.toDomain(b));
+    return prismaBookings.map((b: any) => this.toDomain(b));
   }
 
   async findByCancellationCode(code: string): Promise<Booking | null> {
@@ -118,7 +118,7 @@ export class PrismaBookingRepository implements IBookingRepository {
       },
     });
 
-    return prismaBookings.map((b) => this.toDomain(b));
+    return prismaBookings.map((b: any) => this.toDomain(b));
   }
 
   async update(booking: Booking): Promise<Booking> {

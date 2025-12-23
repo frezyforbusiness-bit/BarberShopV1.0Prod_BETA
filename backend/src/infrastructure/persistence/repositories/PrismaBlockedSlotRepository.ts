@@ -29,7 +29,7 @@ export class PrismaBlockedSlotRepository implements IBlockedSlotRepository {
       },
     });
 
-    return prismaSlots.map((s) => this.toDomain(s));
+    return prismaSlots.map((s: any) => this.toDomain(s));
   }
 
   async save(blockedSlot: BlockedSlot): Promise<BlockedSlot> {
