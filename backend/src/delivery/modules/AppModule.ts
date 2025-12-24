@@ -8,6 +8,7 @@ import { TenantContextMiddleware } from '../../infrastructure/tenant/TenantConte
 import { TenantContext } from '../../infrastructure/tenant/TenantContext';
 import { TypeOrmShopRepository } from '../../infrastructure/persistence/repositories/TypeOrmShopRepository';
 import { DomainExceptionFilter } from '../http/filters/DomainExceptionFilter';
+import { HealthController } from '../http/controllers/HealthController';
 import {
   ShopEntity,
   UserEntity,
@@ -51,6 +52,7 @@ import {
     BookingModule,
     AdminModule,
   ],
+  controllers: [HealthController],
   providers: [
     {
       provide: APP_FILTER,
@@ -67,6 +69,7 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(TenantContextMiddleware)
+      .exclude('/api/v1/health', '/api/v1')
       .forRoutes('*');
   }
 }
