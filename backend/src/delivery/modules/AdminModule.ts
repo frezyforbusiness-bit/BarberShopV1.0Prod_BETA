@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { AdminController } from '../http/controllers/AdminController';
 import { AdminLoginUseCase } from '../../application/use-cases/admin/AdminLoginUseCase';
 import { ListDailyBookingsUseCase } from '../../application/use-cases/admin/ListDailyBookingsUseCase';
@@ -17,6 +18,13 @@ import { TypeOrmBlockedSlotRepository } from '../../infrastructure/persistence/r
 import { TenantContext } from '../../infrastructure/tenant/TenantContext';
 import { SystemClock } from '../../infrastructure/adapters/SystemClock';
 import { UuidGenerator } from '../../infrastructure/adapters/UuidGenerator';
+import {
+  UserEntity,
+  BookingEntity,
+  BarberEntity,
+  ServiceEntity,
+  BlockedSlotEntity,
+} from '../../infrastructure/persistence/entities';
 
 @Module({
   imports: [
@@ -31,6 +39,13 @@ import { UuidGenerator } from '../../infrastructure/adapters/UuidGenerator';
       }),
       inject: [ConfigService],
     }),
+    TypeOrmModule.forFeature([
+      UserEntity,
+      BookingEntity,
+      BarberEntity,
+      ServiceEntity,
+      BlockedSlotEntity,
+    ]),
   ],
   controllers: [AdminController],
   providers: [

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { BookingController } from '../http/controllers/BookingController';
 import { ServiceController } from '../http/controllers/ServiceController';
 import { CreateBookingUseCase } from '../../application/use-cases/booking/CreateBookingUseCase';
@@ -17,8 +18,24 @@ import { EmailService } from '../../infrastructure/notifications/EmailService';
 import { TenantContext } from '../../infrastructure/tenant/TenantContext';
 import { SystemClock } from '../../infrastructure/adapters/SystemClock';
 import { UuidGenerator } from '../../infrastructure/adapters/UuidGenerator';
+import {
+  BookingEntity,
+  ServiceEntity,
+  BarberEntity,
+  ShopEntity,
+  BlockedSlotEntity,
+} from '../../infrastructure/persistence/entities';
 
 @Module({
+  imports: [
+    TypeOrmModule.forFeature([
+      BookingEntity,
+      ServiceEntity,
+      BarberEntity,
+      ShopEntity,
+      BlockedSlotEntity,
+    ]),
+  ],
   controllers: [BookingController, ServiceController],
   providers: [
     // Use Cases
