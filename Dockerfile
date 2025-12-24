@@ -2,6 +2,8 @@
 # Usa node:20-bullseye che include libssl1.1 necessario per Prisma
 FROM node:20-bullseye
 
+WORKDIR /app
+
 # Installa OpenSSL e librerie necessarie per Prisma
 RUN apt-get update && apt-get install -y \
     openssl \
@@ -11,15 +13,19 @@ RUN apt-get update && apt-get install -y \
 
 # Copia package files dal backend
 COPY backend/package*.json ./
+COPY backend/package-lock.json* ./
 
 # Installa dipendenze
 RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
+# Copia schema Prisma (necessario per generare il client)
+COPY backend/prisma ./prisma/
+
 # Copia tutto il codice backend (prima del build)
 COPY backend/ ./
 
-# Build dell'applicazione
-RUN npm run build
+# Genera Prisma Client e build dell'applicazione
+RUN npx prisma generate && npm run build
 
 # Verifica che il build sia stato creato (con debug)
 RUN echo "=== Verifica dist directory ===" && \

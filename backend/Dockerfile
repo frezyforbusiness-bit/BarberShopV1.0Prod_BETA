@@ -1,5 +1,5 @@
-# Dockerfile per backend - da usare se Root Directory non è configurato
-# Questo Dockerfile assume che il build context sia la root del repository
+# Dockerfile per Backend - Quando Root Directory è /backend
+# Questo Dockerfile assume che il build context sia la directory backend
 FROM node:20-bullseye
 
 WORKDIR /app
@@ -11,21 +11,21 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Copia package files dal backend
-COPY backend/package*.json ./
-COPY backend/prisma ./prisma/
+# Copia package files
+COPY package*.json ./
+COPY prisma ./prisma/
 
 # Installa dipendenze
-RUN npm ci || npm install
+RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
 # Copia tutto il codice backend
-COPY backend/ ./
+COPY . .
 
 # Genera Prisma Client e build
 RUN npx prisma generate && npm run build
 
 EXPOSE 3000
 
-CMD ["npm", "run", "start:prod"]
-
+# Usa path corretto (NestJS compila in dist/src/)
+CMD ["node", "dist/src/main.js"]
 
