@@ -16,36 +16,40 @@ async function bootstrap() {
     process.exit(1);
   }
   
-  const app = await NestFactory.create(AppModule);
-
-  // Enable CORS - Allow all origins if FRONTEND_URL is not set (for single service deployment)
-  const frontendUrl = process.env.FRONTEND_URL;
-  if (frontendUrl) {
-    app.enableCors({
-      origin: frontendUrl,
-      credentials: true,
-    });
-  } else {
-    // Allow all origins if no frontend URL is configured
-    app.enableCors({
-      origin: true,
-      credentials: true,
-    });
-  }
-
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
-
-  app.setGlobalPrefix('api/v1');
-
-  const port = process.env.PORT || 3000;
-  
+  console.log('🚀 Creating NestJS application...');
   try {
+    const app = await NestFactory.create(AppModule);
+    console.log('✅ NestJS application created successfully');
+
+    // Enable CORS - Allow all origins if FRONTEND_URL is not set (for single service deployment)
+    const frontendUrl = process.env.FRONTEND_URL;
+    if (frontendUrl) {
+      app.enableCors({
+        origin: frontendUrl,
+        credentials: true,
+      });
+    } else {
+      // Allow all origins if no frontend URL is configured
+      app.enableCors({
+        origin: true,
+        credentials: true,
+      });
+    }
+
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+      }),
+    );
+
+    app.setGlobalPrefix('api/v1');
+    console.log('✅ Global prefix set to /api/v1');
+
+    const port = process.env.PORT || 3000;
+    console.log(`🚀 Starting server on port ${port}...`);
+    
     await app.listen(port, '0.0.0.0'); // Listen on all interfaces for Railway
     console.log(`✅ Server listening on port ${port}`);
     
@@ -56,13 +60,20 @@ async function bootstrap() {
     
     console.log(`Application is running on: ${baseUrl}/api/v1`);
   } catch (error) {
-    console.error('❌ Error starting server:', error);
+    console.error('❌ Error during application startup:', error);
+    if (error instanceof Error) {
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+    }
     process.exit(1);
   }
 }
 
 bootstrap().catch((error) => {
   console.error('❌ Failed to start application:', error);
+  if (error instanceof Error) {
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+  }
   process.exit(1);
 });
-
