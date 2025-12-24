@@ -22,15 +22,25 @@ async function bootstrap() {
   app.setGlobalPrefix('api/v1');
 
   const port = process.env.PORT || 3000;
-  await app.listen(port);
   
-  // Use Railway domain if available, otherwise fallback to localhost
-  const baseUrl = process.env.RAILWAY_PUBLIC_DOMAIN 
-    ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
-    : `http://localhost:${port}`;
-  
-  console.log(`Application is running on: ${baseUrl}/api/v1`);
+  try {
+    await app.listen(port, '0.0.0.0'); // Listen on all interfaces for Railway
+    console.log(`✅ Server listening on port ${port}`);
+    
+    // Use Railway domain if available, otherwise fallback to localhost
+    const baseUrl = process.env.RAILWAY_PUBLIC_DOMAIN 
+      ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
+      : `http://localhost:${port}`;
+    
+    console.log(`Application is running on: ${baseUrl}/api/v1`);
+  } catch (error) {
+    console.error('❌ Error starting server:', error);
+    process.exit(1);
+  }
 }
 
-bootstrap();
+bootstrap().catch((error) => {
+  console.error('❌ Failed to start application:', error);
+  process.exit(1);
+});
 
