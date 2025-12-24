@@ -34,7 +34,7 @@ export class BookingEntity {
   @Column()
   customerPhone: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   customerEmail: string | null;
 
   @Column('date')
@@ -79,4 +79,5 @@ export class BookingEntity {
   @JoinColumn({ name: 'serviceId' })
   service: ServiceEntity;
 }
+
 
