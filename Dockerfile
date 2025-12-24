@@ -1,6 +1,13 @@
 # Dockerfile per Backend - Build dalla root del repository
-# Usa node:20 standard (non più bisogno di Ubuntu per Prisma)
-FROM node:20
+# Usa node:20-bullseye che include libssl1.1 necessario per Prisma
+FROM node:20-bullseye
+
+# Installa OpenSSL e librerie necessarie per Prisma
+RUN apt-get update && apt-get install -y \
+    openssl \
+    libssl1.1 \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copia package files dal backend
 COPY backend/package*.json ./
