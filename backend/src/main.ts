@@ -23,7 +23,13 @@ async function bootstrap() {
 
   const port = process.env.PORT || 3000;
   await app.listen(port);
-  console.log(`Application is running on: http://localhost:${port}/api/v1`);
+  
+  // Use Railway domain if available, otherwise fallback to localhost
+  const baseUrl = process.env.RAILWAY_PUBLIC_DOMAIN 
+    ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
+    : `http://localhost:${port}`;
+  
+  console.log(`Application is running on: ${baseUrl}/api/v1`);
 }
 
 bootstrap();
