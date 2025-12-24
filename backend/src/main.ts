@@ -5,11 +5,20 @@ import { AppModule } from './delivery/modules/AppModule';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Enable CORS
-  app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-    credentials: true,
-  });
+  // Enable CORS - Allow all origins if FRONTEND_URL is not set (for single service deployment)
+  const frontendUrl = process.env.FRONTEND_URL;
+  if (frontendUrl) {
+    app.enableCors({
+      origin: frontendUrl,
+      credentials: true,
+    });
+  } else {
+    // Allow all origins if no frontend URL is configured
+    app.enableCors({
+      origin: true,
+      credentials: true,
+    });
+  }
 
   app.useGlobalPipes(
     new ValidationPipe({
