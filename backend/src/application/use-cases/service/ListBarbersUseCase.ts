@@ -13,19 +13,25 @@ export class ListBarbersUseCase {
   ) {}
 
   async execute(shopId?: string): Promise<Barber[]> {
-    const contextShopId = shopId || this.tenantContext.requireShopId();
+    try {
+      const contextShopId = shopId || this.tenantContext.requireShopId();
 
-    // If shopId provided, validate it matches context (for public endpoints)
-    if (shopId) {
-      const contextId = this.tenantContext.getShopId();
-      if (contextId && contextId !== shopId) {
-        throw new Error('Shop ID mismatch');
+      // If shopId provided, validate it matches context (for public endpoints)
+      if (shopId) {
+        const contextId = this.tenantContext.getShopId();
+        if (contextId && contextId !== shopId) {
+          throw new Error('Shop ID mismatch');
+        }
       }
-    }
 
-    const barbers = await this.barberRepository.findByShopId(contextShopId);
-    // Only return active barbers for public endpoints
-    return shopId ? barbers.filter((b) => b.isActive) : barbers;
+      const barbers = await this.barberRepository.findByShopId(contextShopId);
+      // Only return active barbers for public endpoints
+      return shopId ? barbers.filter((b) => b.isActive) : barbers;
+    } catch (error: any) {
+      console.error('ListBarbersUseCase error:', error.message);
+      console.error('Stack:', error.stack);
+      throw error;
+    }
   }
 }
 
