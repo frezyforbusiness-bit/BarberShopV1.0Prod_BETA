@@ -88,32 +88,6 @@ RUN ls -la /usr/share/nginx/html/ && \
     echo "✅ Frontend files copied successfully" || \
     (echo "❌ Frontend index.html not found!" && exit 1)
 
-# Configurazione nginx
-RUN echo 'server { \
-    listen 80 default_server; \
-    server_name _; \
-    root /usr/share/nginx/html; \
-    index index.html; \
-    \
-    # Proxy per API backend - deve essere prima della location / \
-    location /api { \
-        proxy_pass http://localhost:3000; \
-        proxy_http_version 1.1; \
-        proxy_set_header Upgrade $http_upgrade; \
-        proxy_set_header Connection "upgrade"; \
-        proxy_set_header Host $host; \
-        proxy_set_header X-Real-IP $remote_addr; \
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; \
-        proxy_set_header X-Forwarded-Proto $scheme; \
-    } \
-    \
-    # Serve file statici del frontend \
-    location / { \
-        try_files $uri $uri/ /index.html; \
-        add_header Cache-Control "no-cache"; \
-    } \
-}' > /etc/nginx/conf.d/default.conf
-
 # Script di avvio che avvia sia backend che nginx
 RUN echo '#!/bin/bash\n\
 set -e\n\
@@ -128,27 +102,69 @@ cleanup() {\n\
 \n\
 trap cleanup SIGTERM SIGINT\n\
 \n\
+# Porta del backend (fissa interna)\n\
+BACKEND_PORT=3000\n\
+# Porta di nginx (usa PORT se impostato da Railway, altrimenti 80)\n\
+NGINX_PORT=${PORT:-80}\n\
+\n\
+echo "Configuration:"\n\
+echo "  Backend port: $BACKEND_PORT"\n\
+echo "  Nginx port: $NGINX_PORT"\n\
+\n\
+# Genera configurazione nginx dinamicamente\n\
+cat > /etc/nginx/conf.d/default.conf <<NGINX_CONF\n\
+server {\n\
+    listen $NGINX_PORT default_server;\n\
+    server_name _;\n\
+    root /usr/share/nginx/html;\n\
+    index index.html;\n\
+    \n\
+    # Proxy per API backend - deve essere prima della location /\n\
+    location /api {\n\
+        proxy_pass http://localhost:$BACKEND_PORT;\n\
+        proxy_http_version 1.1;\n\
+        proxy_set_header Upgrade \$http_upgrade;\n\
+        proxy_set_header Connection "upgrade";\n\
+        proxy_set_header Host \$host;\n\
+        proxy_set_header X-Real-IP \$remote_addr;\n\
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;\n\
+        proxy_set_header X-Forwarded-Proto \$scheme;\n\
+    }\n\
+    \n\
+    # Serve file statici del frontend\n\
+    location / {\n\
+        try_files \$uri \$uri/ /index.html;\n\
+        add_header Cache-Control "no-cache";\n\
+    }\n\
+}\n\
+NGINX_CONF\n\
+\n\
+echo "✅ Nginx configuration generated"\n\
+\n\
 # Verifica che i file frontend esistano\n\
 echo "Checking frontend files..."\n\
 ls -la /usr/share/nginx/html/ || echo "Warning: Frontend files not found"\n\
 test -f /usr/share/nginx/html/index.html && echo "✅ Frontend index.html found" || echo "❌ Frontend index.html missing"\n\
 \n\
+# Imposta PORT per il backend (sempre 3000 per uso interno)\n\
+export PORT=$BACKEND_PORT\n\
+\n\
 # Avvia backend in background\n\
-echo "Starting backend..."\n\
+echo "Starting backend on port $BACKEND_PORT..."\n\
 cd /app/backend\n\
 node dist/src/main.js > /tmp/backend.log 2>&1 &\n\
 BACKEND_PID=$!\n\
 echo "Backend started with PID: $BACKEND_PID"\n\
 \n\
 # Attendi che il backend sia pronto\n\
-echo "Waiting for backend to start and listen on port 3000..."\n\
+echo "Waiting for backend to start and listen on port $BACKEND_PORT..."\n\
 MAX_ATTEMPTS=60\n\
 for i in $(seq 1 $MAX_ATTEMPTS); do\n\
-  if nc -z localhost 3000 2>/dev/null; then\n\
-    echo "✅ Backend is listening on port 3000 (attempt $i)"\n\
-    # Doppio check: prova anche l'endpoint health\n\
+  if nc -z localhost $BACKEND_PORT 2>/dev/null; then\n\
+    echo "✅ Backend is listening on port $BACKEND_PORT (attempt $i)"\n\
+    # Doppio check\n\
     sleep 2\n\
-    if nc -z localhost 3000 2>/dev/null; then\n\
+    if nc -z localhost $BACKEND_PORT 2>/dev/null; then\n\
       echo "✅ Backend health check passed"\n\
       break\n\
     fi\n\
@@ -173,20 +189,22 @@ for i in $(seq 1 $MAX_ATTEMPTS); do\n\
     sleep 1\n\
   fi\n\
 done\n\
-echo "✅ Backend is ready, starting nginx..."\n\
+echo "✅ Backend is ready, starting nginx on port $NGINX_PORT..."\n\
 \n\
 # Avvia nginx in foreground\n\
 echo "Starting nginx..."\n\
 nginx -g "daemon off;" &\n\
 NGINX_PID=$!\n\
 \n\
-echo "Both services started. Backend PID: $BACKEND_PID, Nginx PID: $NGINX_PID"\n\
+echo "Both services started. Backend PID: $BACKEND_PID (port $BACKEND_PORT), Nginx PID: $NGINX_PID (port $NGINX_PORT)"\n\
 \n\
 # Attendi che entrambi i processi finiscano\n\
 wait $BACKEND_PID $NGINX_PID\n\
 ' > /start.sh && chmod +x /start.sh
 
 EXPOSE 80
+# Nota: Railway userà la variabile d'ambiente PORT per esporre il servizio
+# Nginx ascolterà su PORT (o 80 se non impostato)
 
 CMD ["/start.sh"]
 
