@@ -11,6 +11,7 @@ import {
   SetMetadata,
   HttpCode,
   HttpStatus,
+  HttpException,
 } from '@nestjs/common';
 import { ListServicesUseCase } from '../../../application/use-cases/service/ListServicesUseCase';
 import { ListBarbersUseCase } from '../../../application/use-cases/service/ListBarbersUseCase';
@@ -29,14 +30,36 @@ export class ServiceController {
   @SetMetadata('isPublic', true)
   async listServices(@Param('slug') slug: string) {
     // ShopId will be resolved by tenant middleware from slug
-    return this.listServicesUseCase.execute();
+    try {
+      return await this.listServicesUseCase.execute();
+    } catch (error: any) {
+      if (error.message?.includes('required') || error.message?.includes('not set')) {
+        throw new HttpException(
+          `Shop with slug '${slug}' not found`,
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      throw error;
+    }
   }
 
   @Get(':slug/barbers')
   @SetMetadata('isPublic', true)
   async listBarbers(@Param('slug') slug: string) {
     // ShopId will be resolved by tenant middleware from slug
-    return this.listBarbersUseCase.execute();
+    // Se lo shop non viene trovato, il middleware non imposta shopId
+    // e requireShopId() lancerà un errore
+    try {
+      return await this.listBarbersUseCase.execute();
+    } catch (error: any) {
+      if (error.message?.includes('required') || error.message?.includes('not set')) {
+        throw new HttpException(
+          `Shop with slug '${slug}' not found`,
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      throw error;
+    }
   }
 
   @Post('admin/services')
