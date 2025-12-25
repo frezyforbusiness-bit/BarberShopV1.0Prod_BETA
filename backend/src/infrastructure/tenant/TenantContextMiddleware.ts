@@ -19,8 +19,22 @@ export class TenantContextMiddleware implements NestMiddleware {
 
       // Also check if shopId is provided in headers (for admin requests)
       const shopIdHeader = req.get('x-shop-id');
+      
+      // Extract slug from URL path (e.g., /api/v1/shops/barbershop/barbers -> barbershop)
+      // req.params is not available in middleware, so we parse the URL manually
+      let shopSlugFromUrl: string | null = null;
+      const path = req.path || req.url.split('?')[0];
+      
+      // Match pattern: /api/v1/shops/{slug}/...
+      const shopsPattern = /\/api\/v1\/shops\/([^\/]+)/;
+      const match = path.match(shopsPattern);
+      if (match && match[1]) {
+        shopSlugFromUrl = match[1];
+      }
+      
       // Il controller usa @Param('slug'), quindi il parametro si chiama 'slug'
-      const shopSlugParam = req.params.slug || req.params.shopSlug || req.query.shopSlug || req.query.slug;
+      // Try params first (might be available in some cases), then URL extraction, then query
+      const shopSlugParam = req.params?.slug || req.params?.shopSlug || shopSlugFromUrl || req.query.shopSlug || req.query.slug;
 
       let shopId: string | null = null;
 
