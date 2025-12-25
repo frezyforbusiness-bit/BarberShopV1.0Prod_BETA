@@ -46,13 +46,19 @@ export class ServiceController {
   @Get(':slug/barbers')
   @SetMetadata('isPublic', true)
   async listBarbers(@Param('slug') slug: string) {
+    console.log(`[ServiceController] listBarbers called with slug: ${slug}`);
     // ShopId will be resolved by tenant middleware from slug
     // Se lo shop non viene trovato, il middleware non imposta shopId
     // e requireShopId() lancerà un errore
     try {
-      return await this.listBarbersUseCase.execute();
+      console.log(`[ServiceController] Executing listBarbersUseCase for slug: ${slug}`);
+      const result = await this.listBarbersUseCase.execute();
+      console.log(`[ServiceController] listBarbersUseCase returned ${result?.length || 0} barbers`);
+      return result;
     } catch (error: any) {
+      console.error(`[ServiceController] Error in listBarbers: ${error.message}`);
       if (error.message?.includes('required') || error.message?.includes('not set')) {
+        console.log(`[ServiceController] Shop not found, throwing 404 for slug: ${slug}`);
         throw new HttpException(
           `Shop with slug '${slug}' not found`,
           HttpStatus.NOT_FOUND,

@@ -25,16 +25,23 @@ export class TenantContextMiddleware implements NestMiddleware {
       let shopSlugFromUrl: string | null = null;
       const path = req.path || req.url.split('?')[0];
       
+      console.log(`[TenantContextMiddleware] Processing request: ${req.method} ${path}`);
+      
       // Match pattern: /api/v1/shops/{slug}/...
       const shopsPattern = /\/api\/v1\/shops\/([^\/]+)/;
       const match = path.match(shopsPattern);
       if (match && match[1]) {
         shopSlugFromUrl = match[1];
+        console.log(`[TenantContextMiddleware] Extracted slug from URL: ${shopSlugFromUrl}`);
+      } else {
+        console.log(`[TenantContextMiddleware] No slug found in URL pattern`);
       }
       
       // Il controller usa @Param('slug'), quindi il parametro si chiama 'slug'
       // Try params first (might be available in some cases), then URL extraction, then query
       const shopSlugParam = req.params?.slug || req.params?.shopSlug || shopSlugFromUrl || req.query.shopSlug || req.query.slug;
+      
+      console.log(`[TenantContextMiddleware] Final shopSlugParam: ${shopSlugParam || 'null'}`);
 
       let shopId: string | null = null;
 
