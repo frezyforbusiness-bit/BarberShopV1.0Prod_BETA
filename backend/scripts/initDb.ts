@@ -10,29 +10,47 @@ async function main() {
   try {
     // Step 1: Crea struttura database con Prisma
     console.log('📦 Step 1: Creating database schema...');
-    try {
-      // Prova prima con migrate deploy (se ci sono migration)
-      console.log('   Trying prisma migrate deploy...');
-      execSync('npx prisma migrate deploy', {
-        stdio: 'pipe',
-        cwd: '/app/backend',
-        env: process.env,
-      });
-      console.log('✅ Migrations deployed successfully\n');
-    } catch (migrateError: any) {
-      console.log('   migrate deploy failed, trying db push...');
+    
+    // Controlla se ci sono migration
+    const fs = require('fs');
+    const path = require('path');
+    const migrationsPath = path.join('/app/backend', 'prisma', 'migrations');
+    const hasMigrations = fs.existsSync(migrationsPath) && 
+                          fs.readdirSync(migrationsPath).length > 0;
+    
+    if (hasMigrations) {
+      console.log('   Found migrations, using prisma migrate deploy...');
       try {
-        // Fallback: usa db push per creare lo schema direttamente
-        execSync('npx prisma db push --accept-data-loss', {
-          stdio: 'pipe',
+        execSync('npx prisma migrate deploy', {
+          stdio: 'inherit',
+          cwd: '/app/backend',
+          env: process.env,
+        });
+        console.log('✅ Migrations deployed successfully\n');
+      } catch (migrateError: any) {
+        console.error('⚠️  Migration deploy failed:', migrateError.message);
+        console.log('   Falling back to db push...');
+        // Fallback a db push
+        execSync('npx prisma db push --accept-data-loss --skip-generate', {
+          stdio: 'inherit',
+          cwd: '/app/backend',
+          env: process.env,
+        });
+        console.log('✅ Database schema created with db push\n');
+      }
+    } else {
+      console.log('   No migrations found, using prisma db push...');
+      try {
+        // Usa db push per creare lo schema direttamente dal schema.prisma
+        execSync('npx prisma db push --accept-data-loss --skip-generate', {
+          stdio: 'inherit',
           cwd: '/app/backend',
           env: process.env,
         });
         console.log('✅ Database schema created with db push\n');
       } catch (pushError: any) {
-        console.error('❌ Both migrate deploy and db push failed!');
-        console.error('   Migrate error:', migrateError.message);
-        console.error('   Push error:', pushError.message);
+        console.error('❌ Prisma db push failed!');
+        console.error('   Error:', pushError.message);
         // Non facciamo exit, proviamo comunque a continuare
         console.log('⚠️  Continuing anyway, schema might already exist...\n');
       }
