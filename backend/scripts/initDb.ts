@@ -90,19 +90,6 @@ async function main() {
         },
       });
       console.log(`✅ Shop created: ${shop.name} (slug: ${shop.slug}, id: ${shop.id})`);
-    } else {
-      console.log(`✅ Using existing shop: ${shop.name} (slug: ${shop.slug}, id: ${shop.id})`);
-      
-      // Se lo shop esiste ma ha uno slug diverso, aggiornalo a 'barbershop'
-      if (shop.slug !== 'barbershop') {
-        console.log(`⚠️  Shop has different slug '${shop.slug}', updating to 'barbershop'...`);
-        shop = await prisma.shop.update({
-          where: { id: shop.id },
-          data: { slug: 'barbershop' },
-        });
-        console.log(`✅ Shop slug updated to 'barbershop'`);
-      }
-    }
 
       // Crea Admin User
       const passwordHash = await bcrypt.hash('admin123', 10);
@@ -137,7 +124,18 @@ async function main() {
       });
       console.log(`✅ Barber created: ${barber.name}\n`);
     } else {
-      console.log(`✅ Using existing shop: ${shop.name} (slug: ${shop.slug})\n`);
+      console.log(`✅ Using existing shop: ${shop.name} (slug: ${shop.slug}, id: ${shop.id})`);
+      
+      // Se lo shop esiste ma ha uno slug diverso, aggiornalo a 'barbershop'
+      if (shop.slug !== 'barbershop') {
+        console.log(`⚠️  Shop has different slug '${shop.slug}', updating to 'barbershop'...`);
+        shop = await prisma.shop.update({
+          where: { id: shop.id },
+          data: { slug: 'barbershop' },
+        });
+        console.log(`✅ Shop slug updated to 'barbershop'`);
+      }
+      console.log('');
     }
 
     // Step 3: Aggiungi servizi barbershop
