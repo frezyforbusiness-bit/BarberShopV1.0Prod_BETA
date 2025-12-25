@@ -121,7 +121,7 @@ server {\n\
     \n\
     # Proxy per API backend - deve essere prima della location /\n\
     location /api {\n\
-        proxy_pass http://localhost:$BACKEND_PORT;\n\
+        proxy_pass http://127.0.0.1:$BACKEND_PORT;\n\
         proxy_http_version 1.1;\n\
         proxy_set_header Upgrade \$http_upgrade;\n\
         proxy_set_header Connection "upgrade";\n\
@@ -160,11 +160,11 @@ echo "Backend started with PID: $BACKEND_PID"\n\
 echo "Waiting for backend to start and listen on port $BACKEND_PORT..."\n\
 MAX_ATTEMPTS=60\n\
 for i in $(seq 1 $MAX_ATTEMPTS); do\n\
-  if nc -z localhost $BACKEND_PORT 2>/dev/null; then\n\
+  if nc -z 127.0.0.1 $BACKEND_PORT 2>/dev/null; then\n\
     echo "✅ Backend is listening on port $BACKEND_PORT (attempt $i)"\n\
     # Doppio check\n\
     sleep 2\n\
-    if nc -z localhost $BACKEND_PORT 2>/dev/null; then\n\
+    if nc -z 127.0.0.1 $BACKEND_PORT 2>/dev/null; then\n\
       echo "✅ Backend health check passed"\n\
       break\n\
     fi\n\
