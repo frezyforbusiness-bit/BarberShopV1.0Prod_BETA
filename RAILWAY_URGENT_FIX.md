@@ -75,3 +75,4 @@ Ho aggiornato i file `nixpacks.toml` per usare `npm ci || npm install` come fall
 **IMPORTANTE**: Il Root Directory è la SOLA cosa che risolve questo problema. Senza di esso, Railway cercherà sempre nella root e non troverà mai i file nelle sottocartelle.
 
 
+

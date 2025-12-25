@@ -61,3 +61,4 @@ Dopo aver configurato il Root Directory, nei log del deploy vedrai:
 **IMPORTANTE**: Questo è l'unico fix necessario. Una volta configurato il Root Directory, il build funzionerà perché i `package-lock.json` sono già nel repository.
 
 
+

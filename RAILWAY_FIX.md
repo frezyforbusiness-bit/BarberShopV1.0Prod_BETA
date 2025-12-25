@@ -69,3 +69,4 @@ Assicurati che i file `backend/railway.json` e `frontend/railway.json` esistano 
 **Nota**: Railway a volte non legge i file `railway.json` nelle sottocartelle se il Root Directory non è configurato. Una volta impostato il Root Directory, Railway dovrebbe trovare automaticamente i file di configurazione.
 
 
+
