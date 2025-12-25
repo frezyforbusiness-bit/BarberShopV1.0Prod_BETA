@@ -19,8 +19,23 @@ export class TypeOrmServiceRepository implements IServiceRepository {
   }
 
   async findByShopId(shopId: string): Promise<Service[]> {
-    const entities = await this.repository.find({ where: { shopId } });
-    return entities.map((e) => this.toDomain(e));
+    console.log(`[TypeOrmServiceRepository] Finding services for shopId: ${shopId}`);
+    try {
+      const entities = await this.repository.find({ where: { shopId } });
+      console.log(`[TypeOrmServiceRepository] Found ${entities.length} services in database`);
+      if (entities.length === 0) {
+        // Debug: verifica se ci sono servizi per altri shop
+        const allServices = await this.repository.find();
+        console.log(`[TypeOrmServiceRepository] Total services in DB: ${allServices.length}`);
+        if (allServices.length > 0) {
+          console.log(`[TypeOrmServiceRepository] Sample service shopId: ${allServices[0].shopId}, looking for: ${shopId}`);
+        }
+      }
+      return entities.map((e) => this.toDomain(e));
+    } catch (error: any) {
+      console.error(`[TypeOrmServiceRepository] Error finding services:`, error.message);
+      throw error;
+    }
   }
 
   async save(service: Service): Promise<Service> {

@@ -18,8 +18,25 @@ export class TypeOrmShopRepository implements IShopRepository {
   }
 
   async findBySlug(slug: string): Promise<Shop | null> {
-    const entity = await this.repository.findOne({ where: { slug } });
-    return entity ? this.toDomain(entity) : null;
+    console.log(`[TypeOrmShopRepository] Finding shop by slug: ${slug}`);
+    try {
+      const entity = await this.repository.findOne({ where: { slug } });
+      if (entity) {
+        console.log(`[TypeOrmShopRepository] Shop found: ${entity.name} (id: ${entity.id}, slug: ${entity.slug})`);
+      } else {
+        console.log(`[TypeOrmShopRepository] Shop not found for slug: ${slug}`);
+        // Debug: lista tutti gli shop
+        const allShops = await this.repository.find();
+        console.log(`[TypeOrmShopRepository] Total shops in DB: ${allShops.length}`);
+        if (allShops.length > 0) {
+          allShops.forEach(s => console.log(`  - Shop: ${s.name}, slug: ${s.slug}, id: ${s.id}`));
+        }
+      }
+      return entity ? this.toDomain(entity) : null;
+    } catch (error: any) {
+      console.error(`[TypeOrmShopRepository] Error finding shop by slug:`, error.message);
+      throw error;
+    }
   }
 
   async save(shop: Shop): Promise<Shop> {
