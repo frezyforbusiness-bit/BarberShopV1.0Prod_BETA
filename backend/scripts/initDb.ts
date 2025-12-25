@@ -56,12 +56,12 @@ async function main() {
       }
     }
 
-    // Step 2: Verifica se esiste già uno shop con slug 'mybarbershop'
+    // Step 2: Verifica se esiste già uno shop con slug 'barbershop'
     console.log('🔍 Step 2: Checking for existing shop...');
     
-    // Prima cerca per slug specifico
+    // Prima cerca per slug specifico 'barbershop'
     let shop = await prisma.shop.findFirst({
-      where: { slug: 'mybarbershop' },
+      where: { slug: 'barbershop' },
     });
     
     // Se non trovato, cerca qualsiasi shop attivo
@@ -74,11 +74,11 @@ async function main() {
     if (!shop) {
       console.log('📝 Creating shop, admin user, and barber...');
       
-      // Crea Shop con slug 'mybarbershop'
+      // Crea Shop con slug 'barbershop'
       shop = await prisma.shop.create({
         data: {
-          name: 'My Barbershop',
-          slug: 'mybarbershop',
+          name: 'Barbershop',
+          slug: 'barbershop',
           settings: {
             openingTime: '09:00',
             closingTime: '19:00',
@@ -93,14 +93,14 @@ async function main() {
     } else {
       console.log(`✅ Using existing shop: ${shop.name} (slug: ${shop.slug}, id: ${shop.id})`);
       
-      // Se lo shop esiste ma ha uno slug diverso, aggiornalo
-      if (shop.slug !== 'mybarbershop') {
-        console.log(`⚠️  Shop has different slug '${shop.slug}', updating to 'mybarbershop'...`);
+      // Se lo shop esiste ma ha uno slug diverso, aggiornalo a 'barbershop'
+      if (shop.slug !== 'barbershop') {
+        console.log(`⚠️  Shop has different slug '${shop.slug}', updating to 'barbershop'...`);
         shop = await prisma.shop.update({
           where: { id: shop.id },
-          data: { slug: 'mybarbershop' },
+          data: { slug: 'barbershop' },
         });
-        console.log(`✅ Shop slug updated to 'mybarbershop'`);
+        console.log(`✅ Shop slug updated to 'barbershop'`);
       }
     }
 

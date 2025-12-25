@@ -12,8 +12,8 @@ import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 
 // Default shop slug - deve corrispondere a quello creato dallo script initDb
-// Lo script initDb crea uno shop con slug 'mybarbershop'
-const DEFAULT_SHOP_SLUG = 'mybarbershop';
+// Lo script initDb crea uno shop con slug 'barbershop'
+const DEFAULT_SHOP_SLUG = 'barbershop';
 
 export const BookingPage: React.FC = () => {
   const [step, setStep] = useState(1);

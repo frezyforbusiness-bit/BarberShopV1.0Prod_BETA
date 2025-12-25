@@ -9,8 +9,8 @@ async function main() {
   // Crea Shop
   const shop = await prisma.shop.create({
     data: {
-      name: 'My Barbershop',
-      slug: 'mybarbershop',
+      name: 'Barbershop',
+      slug: 'barbershop',
       settings: {
         openingTime: '09:00',
         closingTime: '19:00',
