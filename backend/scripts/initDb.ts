@@ -56,16 +56,25 @@ async function main() {
       }
     }
 
-    // Step 2: Verifica se esiste già uno shop
+    // Step 2: Verifica se esiste già uno shop con slug 'mybarbershop'
     console.log('🔍 Step 2: Checking for existing shop...');
+    
+    // Prima cerca per slug specifico
     let shop = await prisma.shop.findFirst({
-      where: { isActive: true },
+      where: { slug: 'mybarbershop' },
     });
+    
+    // Se non trovato, cerca qualsiasi shop attivo
+    if (!shop) {
+      shop = await prisma.shop.findFirst({
+        where: { isActive: true },
+      });
+    }
 
     if (!shop) {
       console.log('📝 Creating shop, admin user, and barber...');
       
-      // Crea Shop
+      // Crea Shop con slug 'mybarbershop'
       shop = await prisma.shop.create({
         data: {
           name: 'My Barbershop',
@@ -80,7 +89,20 @@ async function main() {
           isActive: true,
         },
       });
-      console.log(`✅ Shop created: ${shop.name} (slug: ${shop.slug})`);
+      console.log(`✅ Shop created: ${shop.name} (slug: ${shop.slug}, id: ${shop.id})`);
+    } else {
+      console.log(`✅ Using existing shop: ${shop.name} (slug: ${shop.slug}, id: ${shop.id})`);
+      
+      // Se lo shop esiste ma ha uno slug diverso, aggiornalo
+      if (shop.slug !== 'mybarbershop') {
+        console.log(`⚠️  Shop has different slug '${shop.slug}', updating to 'mybarbershop'...`);
+        shop = await prisma.shop.update({
+          where: { id: shop.id },
+          data: { slug: 'mybarbershop' },
+        });
+        console.log(`✅ Shop slug updated to 'mybarbershop'`);
+      }
+    }
 
       // Crea Admin User
       const passwordHash = await bcrypt.hash('admin123', 10);
