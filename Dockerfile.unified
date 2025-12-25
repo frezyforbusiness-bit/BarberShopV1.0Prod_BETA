@@ -4,9 +4,16 @@
 # ============================================
 # Stage 1: Build Frontend
 # ============================================
-FROM node:20-alpine AS frontend-builder
+FROM node:20-bullseye AS frontend-builder
 
 WORKDIR /app/frontend
+
+# Installa dipendenze di sistema se necessarie
+RUN apt-get update && apt-get install -y \
+    python3 \
+    make \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copia package files dal frontend
 COPY frontend/package*.json ./
