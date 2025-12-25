@@ -13,9 +13,11 @@ export class TenantContextMiddleware implements NestMiddleware {
 
   async use(req: Request, res: Response, next: NextFunction) {
     try {
-      // Extract shop slug from subdomain (e.g., barbershop1.app.com -> barbershop1)
+      // Extract shop slug from subdomain (e.g., barbershop.railway.internal -> barbershop)
       const host = req.get('host') || '';
       const subdomain = host.split('.')[0];
+      
+      console.log(`[TenantContextMiddleware] Host: ${host}, Subdomain: ${subdomain}`);
 
       // Also check if shopId is provided in headers (for admin requests)
       const shopIdHeader = req.get('x-shop-id');
@@ -38,7 +40,7 @@ export class TenantContextMiddleware implements NestMiddleware {
       }
       
       // Il controller usa @Param('slug'), quindi il parametro si chiama 'slug'
-      // Try params first (might be available in some cases), then URL extraction, then query
+      // Priority: URL path slug > query params (subdomain is fallback)
       const shopSlugParam = req.params?.slug || req.params?.shopSlug || shopSlugFromUrl || req.query.shopSlug || req.query.slug;
       
       console.log(`[TenantContextMiddleware] Final shopSlugParam: ${shopSlugParam || 'null'}`);
@@ -47,8 +49,10 @@ export class TenantContextMiddleware implements NestMiddleware {
 
       if (shopIdHeader) {
         shopId = shopIdHeader;
+        console.log(`[TenantContextMiddleware] Using shopId from header: ${shopId}`);
       } else if (shopSlugParam) {
         try {
+          console.log(`[TenantContextMiddleware] Looking up shop by slug: ${shopSlugParam}`);
           const shop = await this.shopRepository.findBySlug(
             shopSlugParam as string,
           );
@@ -60,15 +64,21 @@ export class TenantContextMiddleware implements NestMiddleware {
           }
         } catch (error: any) {
           console.error(`❌ Error finding shop by slug ${shopSlugParam}:`, error.message);
+          console.error(`❌ Error stack:`, error.stack);
         }
       } else if (subdomain && subdomain !== 'www' && subdomain !== 'admin') {
         try {
+          console.log(`[TenantContextMiddleware] No slug in URL/query, trying subdomain: ${subdomain}`);
           const shop = await this.shopRepository.findBySlug(subdomain);
           if (shop) {
             shopId = shop.id;
+            console.log(`✅ Shop found by subdomain: ${subdomain} -> ${shopId}`);
+          } else {
+            console.warn(`⚠️  Shop not found for subdomain: ${subdomain}`);
           }
         } catch (error: any) {
           console.error(`❌ Error finding shop by subdomain ${subdomain}:`, error.message);
+          console.error(`❌ Error stack:`, error.stack);
         }
       }
 
