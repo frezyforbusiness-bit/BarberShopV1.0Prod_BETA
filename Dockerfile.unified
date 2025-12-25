@@ -102,8 +102,8 @@ cleanup() {\n\
 \n\
 trap cleanup SIGTERM SIGINT\n\
 \n\
-# Porta del backend (fissa interna)\n\
-BACKEND_PORT=3000\n\
+# Porta del backend (fissa interna, NON usa PORT di Railway)\n\
+BACKEND_PORT=3001\n\
 # Porta di nginx (usa PORT se impostato da Railway, altrimenti 80)\n\
 NGINX_PORT=${PORT:-80}\n\
 \n\
@@ -146,11 +146,14 @@ echo "Checking frontend files..."\n\
 ls -la /usr/share/nginx/html/ || echo "Warning: Frontend files not found"\n\
 test -f /usr/share/nginx/html/index.html && echo "✅ Frontend index.html found" || echo "❌ Frontend index.html missing"\n\
 \n\
-# Imposta PORT per il backend (sempre 3000 per uso interno)\n\
+# Backend usa sempre porta fissa interna (non usa PORT di Railway)\n\
+# Salviamo PORT originale di Railway per nginx\n\
+ORIGINAL_PORT=$PORT\n\
+# Forza backend a usare porta fissa\n\
 export PORT=$BACKEND_PORT\n\
 \n\
 # Avvia backend in background\n\
-echo "Starting backend on port $BACKEND_PORT..."\n\
+echo "Starting backend on port $BACKEND_PORT (internal, Railway PORT=$ORIGINAL_PORT will be used by nginx)..."\n\
 cd /app/backend\n\
 node dist/src/main.js > /tmp/backend.log 2>&1 &\n\
 BACKEND_PID=$!\n\
