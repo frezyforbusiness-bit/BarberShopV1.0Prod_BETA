@@ -11,8 +11,9 @@ import type { TimeSlotDTO } from '../../../application/dto/BookingDTO';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 
-// Default shop slug - può essere passato come query param o env var
-const DEFAULT_SHOP_SLUG = 'default-shop';
+// Default shop slug - deve corrispondere a quello creato dallo script initDb
+// Lo script initDb crea uno shop con slug 'mybarbershop'
+const DEFAULT_SHOP_SLUG = 'mybarbershop';
 
 export const BookingPage: React.FC = () => {
   const [step, setStep] = useState(1);

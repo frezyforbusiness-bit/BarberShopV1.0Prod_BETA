@@ -18,7 +18,8 @@ export class TenantContextMiddleware implements NestMiddleware {
 
     // Also check if shopId is provided in headers (for admin requests)
     const shopIdHeader = req.get('x-shop-id');
-    const shopSlugParam = req.params.shopSlug || req.query.shopSlug;
+    // Il controller usa @Param('slug'), quindi il parametro si chiama 'slug'
+    const shopSlugParam = req.params.slug || req.params.shopSlug || req.query.shopSlug || req.query.slug;
 
     let shopId: string | null = null;
 
