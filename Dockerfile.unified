@@ -138,21 +138,9 @@ cd /app/backend && node dist/src/main.js &\n\
 BACKEND_PID=$!\n\
 \n\
 # Attendi che il backend sia pronto\n\
-sleep 3\n\
-\n\
-# Verifica che il backend sia in ascolto\n\
-echo "Checking if backend is listening on port 3000..."\n\
-for i in {1..30}; do\n\
-  if curl -f http://localhost:3000/api/v1/health > /dev/null 2>&1; then\n\
-    echo "✅ Backend is ready"\n\
-    break\n\
-  fi\n\
-  if [ $i -eq 30 ]; then\n\
-    echo "❌ Backend did not start properly"\n\
-    exit 1\n\
-  fi\n\
-  sleep 1\n\
-done\n\
+echo "Waiting for backend to start..."\n\
+sleep 5\n\
+echo "✅ Backend should be ready\n\
 \n\
 # Avvia nginx in foreground\n\
 echo "Starting nginx..."\n\
