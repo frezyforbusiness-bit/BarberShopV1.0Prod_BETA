@@ -13,7 +13,9 @@ export class TenantContextMiddleware implements NestMiddleware {
 
   async use(req: Request, res: Response, next: NextFunction) {
     try {
-      // Extract shop slug from subdomain (e.g., barbershop.railway.internal -> barbershop)
+      // Extract shop slug from subdomain (fallback if not in URL)
+      // For public domain (barbershopv10prodbeta-production.up.railway.app), 
+      // slug is extracted from URL path, not subdomain
       const host = req.get('host') || '';
       const subdomain = host.split('.')[0];
       
@@ -23,6 +25,8 @@ export class TenantContextMiddleware implements NestMiddleware {
       const shopIdHeader = req.get('x-shop-id');
       
       // Extract slug from URL path (e.g., /api/v1/shops/barbershop/barbers -> barbershop)
+      // This works for both subdomain-based (barbershop.railway.internal) and 
+      // path-based (barbershopv10prodbeta-production.up.railway.app/api/v1/shops/barbershop/barbers) URLs
       // req.params is not available in middleware, so we parse the URL manually
       let shopSlugFromUrl: string | null = null;
       const path = req.path || req.url.split('?')[0];

@@ -47,6 +47,12 @@ async function bootstrap() {
     app.setGlobalPrefix('api/v1');
     console.log('✅ Global prefix set to /api/v1');
 
+    // Add raw Express middleware to log ALL incoming requests BEFORE NestJS routing
+    app.use((req: any, res: any, next: any) => {
+      console.log(`[RAW_REQUEST] ${req.method} ${req.url} | Path: ${req.path} | OriginalUrl: ${req.originalUrl}`);
+      next();
+    });
+
     const port = process.env.PORT || 3000;
     console.log(`🚀 Starting server on port ${port}...`);
     
