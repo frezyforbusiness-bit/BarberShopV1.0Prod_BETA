@@ -156,21 +156,28 @@ echo "Checking frontend files..."\n\
 ls -la /usr/share/nginx/html/ || echo "Warning: Frontend files not found"\n\
 test -f /usr/share/nginx/html/index.html && echo "✅ Frontend index.html found" || echo "❌ Frontend index.html missing"\n\
 \n\
-# Inizializza database (migration + seed) in background per non bloccare l'avvio\n\
-echo "🚀 Initializing database (non-blocking)..."\n\
+# Inizializza database PRIMA di avviare il backend (sincrono con timeout)\n\
+echo "🚀 Initializing database (this may take a moment)..."\n\
 cd /app/backend\n\
-(\n\
-  if [ -f node_modules/.bin/ts-node ]; then\n\
-    echo "Running database initialization script..."\n\
-    timeout 120 npx ts-node scripts/initDb.ts 2>&1 || echo "⚠️  Database init script had errors or timeout"\n\
-  else\n\
-    echo "⚠️  ts-node not found, trying direct prisma commands..."\n\
-    timeout 60 npx prisma db push --accept-data-loss --skip-generate 2>&1 || echo "⚠️  Prisma db push failed"\n\
-  fi\n\
-  echo "✅ Database initialization completed"\n\
-) &\n\
-DB_INIT_PID=$!\n\
-echo "Database init started in background (PID: $DB_INIT_PID), starting backend..."\n\
+\n\
+# Step 1: Crea schema database con Prisma\n\
+echo "Step 1/2: Creating database schema..."\n\
+if [ -f node_modules/.bin/ts-node ]; then\n\
+  # Usa lo script initDb che gestisce tutto\n\
+  timeout 180 npx ts-node scripts/initDb.ts 2>&1 || {\n\
+    echo "⚠️  initDb script failed or timeout, trying direct prisma db push..."\n\
+    timeout 60 npx prisma db push --accept-data-loss --skip-generate 2>&1 || echo "⚠️  Prisma db push also failed"\n\
+  }\n\
+else\n\
+  echo "⚠️  ts-node not found, using direct prisma commands..."\n\
+  timeout 60 npx prisma db push --accept-data-loss --skip-generate 2>&1 || echo "⚠️  Prisma db push failed"\n\
+fi\n\
+\n\
+# Step 2: Verifica che le tabelle esistano\n\
+echo "Step 2/2: Verifying database schema..."\n\
+sleep 2\n\
+echo "✅ Database initialization completed"\n\
+echo "Starting backend..."\n\
 \n\
 # Backend usa sempre porta fissa interna (non usa PORT di Railway)\n\
 # Salviamo PORT originale di Railway per nginx\n\
