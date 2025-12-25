@@ -140,7 +140,7 @@ BACKEND_PID=$!\n\
 # Attendi che il backend sia pronto\n\
 echo "Waiting for backend to start..."\n\
 sleep 5\n\
-echo "✅ Backend should be ready\n\
+echo "✅ Backend should be ready"\n\
 \n\
 # Avvia nginx in foreground\n\
 echo "Starting nginx..."\n\
