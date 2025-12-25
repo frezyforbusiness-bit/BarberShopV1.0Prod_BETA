@@ -1,5 +1,5 @@
 import { httpClient } from './httpClient';
-import { BookingDTO, TimeSlotDTO, CreateBookingRequest } from '../../application/dto/BookingDTO';
+import type { BookingDTO, TimeSlotDTO, CreateBookingRequest } from '../../application/dto/BookingDTO';
 
 export const bookingApi = {
   create: (data: CreateBookingRequest): Promise<BookingDTO> => {

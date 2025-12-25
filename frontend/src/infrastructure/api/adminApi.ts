@@ -1,5 +1,5 @@
 import { httpClient } from './httpClient';
-import { BookingDTO } from '../../application/dto/BookingDTO';
+import type { BookingDTO } from '../../application/dto/BookingDTO';
 
 export interface LoginRequest {
   email: string;
