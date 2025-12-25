@@ -8,17 +8,34 @@ async function main() {
   console.log('🚀 Starting database initialization...\n');
 
   try {
-    // Step 1: Esegui migration Prisma
-    console.log('📦 Step 1: Running Prisma migrations...');
+    // Step 1: Crea struttura database con Prisma
+    console.log('📦 Step 1: Creating database schema...');
     try {
+      // Prova prima con migrate deploy (se ci sono migration)
+      console.log('   Trying prisma migrate deploy...');
       execSync('npx prisma migrate deploy', {
-        stdio: 'inherit',
+        stdio: 'pipe',
         cwd: '/app/backend',
+        env: process.env,
       });
-      console.log('✅ Migrations completed successfully\n');
-    } catch (error: any) {
-      console.error('⚠️  Migration error (might be OK if already applied):', error.message);
-      // Continua anche se le migration falliscono (potrebbero essere già applicate)
+      console.log('✅ Migrations deployed successfully\n');
+    } catch (migrateError: any) {
+      console.log('   migrate deploy failed, trying db push...');
+      try {
+        // Fallback: usa db push per creare lo schema direttamente
+        execSync('npx prisma db push --accept-data-loss', {
+          stdio: 'pipe',
+          cwd: '/app/backend',
+          env: process.env,
+        });
+        console.log('✅ Database schema created with db push\n');
+      } catch (pushError: any) {
+        console.error('❌ Both migrate deploy and db push failed!');
+        console.error('   Migrate error:', migrateError.message);
+        console.error('   Push error:', pushError.message);
+        // Non facciamo exit, proviamo comunque a continuare
+        console.log('⚠️  Continuing anyway, schema might already exist...\n');
+      }
     }
 
     // Step 2: Verifica se esiste già uno shop

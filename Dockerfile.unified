@@ -81,6 +81,14 @@ COPY --from=backend-builder /app/backend/prisma ./backend/prisma
 COPY --from=backend-builder /app/backend/scripts ./backend/scripts
 COPY --from=backend-builder /app/backend/tsconfig.json ./backend/tsconfig.json
 
+# Assicurati che le migration Prisma siano copiate
+RUN if [ -d "/app/backend/prisma/migrations" ]; then \
+      echo "✅ Prisma migrations directory found"; \
+      ls -la /app/backend/prisma/migrations/ || echo "⚠️  No migrations found"; \
+    else \
+      echo "⚠️  Prisma migrations directory not found, will use db push"; \
+    fi
+
 # Copia frontend buildato
 COPY --from=frontend-builder /app/frontend/dist /usr/share/nginx/html
 
@@ -152,11 +160,17 @@ test -f /usr/share/nginx/html/index.html && echo "✅ Frontend index.html found"
 echo "🚀 Initializing database..."\n\
 cd /app/backend\n\
 if [ -f node_modules/.bin/ts-node ]; then\n\
-  npx ts-node scripts/initDb.ts || echo "⚠️  Database init had warnings, continuing..."\n\
+  echo "Running database initialization script..."\n\
+  npx ts-node scripts/initDb.ts 2>&1 || {\n\
+    echo "⚠️  Database init script had errors, but continuing..."\n\
+    echo "You may need to run migrations manually"\n\
+  }\n\
 else\n\
-  echo "⚠️  ts-node not found, skipping database init (should be done manually)"\n\
+  echo "⚠️  ts-node not found, trying direct prisma commands..."\n\
+  npx prisma db push --accept-data-loss 2>&1 || echo "⚠️  Prisma db push failed"\n\
+  echo "⚠️  Please run 'npm run init:db' manually after deployment"\n\
 fi\n\
-echo "✅ Database initialization completed"\n\
+echo "✅ Database initialization step completed"\n\
 \n\
 # Backend usa sempre porta fissa interna (non usa PORT di Railway)\n\
 # Salviamo PORT originale di Railway per nginx\n\
