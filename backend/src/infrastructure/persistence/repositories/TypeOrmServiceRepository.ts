@@ -21,19 +21,33 @@ export class TypeOrmServiceRepository implements IServiceRepository {
   async findByShopId(shopId: string): Promise<Service[]> {
     console.log(`[TypeOrmServiceRepository] Finding services for shopId: ${shopId}`);
     try {
-      const entities = await this.repository.find({ where: { shopId } });
-      console.log(`[TypeOrmServiceRepository] Found ${entities.length} services in database`);
+      // Cerca solo servizi attivi per questo shop
+      const entities = await this.repository.find({ 
+        where: { shopId, isActive: true } 
+      });
+      console.log(`[TypeOrmServiceRepository] Found ${entities.length} active services for shopId: ${shopId}`);
+      
       if (entities.length === 0) {
+        // Debug: verifica se ci sono servizi (anche non attivi) per questo shop
+        const allForShop = await this.repository.find({ where: { shopId } });
+        console.log(`[TypeOrmServiceRepository] Total services (including inactive) for shopId ${shopId}: ${allForShop.length}`);
+        
         // Debug: verifica se ci sono servizi per altri shop
-        const allServices = await this.repository.find();
-        console.log(`[TypeOrmServiceRepository] Total services in DB: ${allServices.length}`);
-        if (allServices.length > 0) {
-          console.log(`[TypeOrmServiceRepository] Sample service shopId: ${allServices[0].shopId}, looking for: ${shopId}`);
-        }
+        const allServices = await this.repository.find({ take: 5 });
+        console.log(`[TypeOrmServiceRepository] Sample services in DB (first 5):`);
+        allServices.forEach(s => {
+          console.log(`  - Service: ${s.name}, shopId: ${s.shopId}, isActive: ${s.isActive}`);
+        });
+        
+        // Debug: conta tutti i servizi
+        const totalCount = await this.repository.count();
+        console.log(`[TypeOrmServiceRepository] Total services in DB: ${totalCount}`);
       }
+      
       return entities.map((e) => this.toDomain(e));
     } catch (error: any) {
       console.error(`[TypeOrmServiceRepository] Error finding services:`, error.message);
+      console.error('Stack:', error.stack);
       throw error;
     }
   }
