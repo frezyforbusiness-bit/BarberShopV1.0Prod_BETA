@@ -70,6 +70,7 @@ RUN apt-get update && apt-get install -y \
     libssl1.1 \
     ca-certificates \
     nginx \
+    netcat-openbsd \
     && rm -rf /var/lib/apt/lists/*
 
 # Copia backend buildato
@@ -89,7 +90,7 @@ RUN ls -la /usr/share/nginx/html/ && \
 
 # Configurazione nginx
 RUN echo 'server { \
-    listen 80; \
+    listen 80 default_server; \
     server_name _; \
     root /usr/share/nginx/html; \
     index index.html; \
@@ -134,13 +135,45 @@ test -f /usr/share/nginx/html/index.html && echo "✅ Frontend index.html found"
 \n\
 # Avvia backend in background\n\
 echo "Starting backend..."\n\
-cd /app/backend && node dist/src/main.js &\n\
+cd /app/backend\n\
+node dist/src/main.js > /tmp/backend.log 2>&1 &\n\
 BACKEND_PID=$!\n\
+echo "Backend started with PID: $BACKEND_PID"\n\
 \n\
 # Attendi che il backend sia pronto\n\
-echo "Waiting for backend to start..."\n\
-sleep 5\n\
-echo "✅ Backend should be ready"\n\
+echo "Waiting for backend to start and listen on port 3000..."\n\
+MAX_ATTEMPTS=60\n\
+for i in $(seq 1 $MAX_ATTEMPTS); do\n\
+  if nc -z localhost 3000 2>/dev/null; then\n\
+    echo "✅ Backend is listening on port 3000 (attempt $i)"\n\
+    # Doppio check: prova anche l'endpoint health\n\
+    sleep 2\n\
+    if nc -z localhost 3000 2>/dev/null; then\n\
+      echo "✅ Backend health check passed"\n\
+      break\n\
+    fi\n\
+  else\n\
+    if [ $i -eq 1 ]; then\n\
+      echo "Waiting for backend... (attempt $i/$MAX_ATTEMPTS)"\n\
+    elif [ $((i % 10)) -eq 0 ]; then\n\
+      echo "Still waiting for backend... (attempt $i/$MAX_ATTEMPTS)"\n\
+      echo "Backend process status:"\n\
+      ps aux | grep "[n]ode dist/src/main.js" || echo "Backend process not found!"\n\
+      echo "Last 10 lines of backend log:"\n\
+      tail -10 /tmp/backend.log 2>/dev/null || echo "No backend log available"\n\
+    fi\n\
+    if [ $i -eq $MAX_ATTEMPTS ]; then\n\
+      echo "❌ Backend did not start after $MAX_ATTEMPTS seconds"\n\
+      echo "Backend process status:"\n\
+      ps aux | grep node\n\
+      echo "Backend log:"\n\
+      cat /tmp/backend.log 2>/dev/null || echo "No backend log"\n\
+      exit 1\n\
+    fi\n\
+    sleep 1\n\
+  fi\n\
+done\n\
+echo "✅ Backend is ready, starting nginx..."\n\
 \n\
 # Avvia nginx in foreground\n\
 echo "Starting nginx..."\n\
