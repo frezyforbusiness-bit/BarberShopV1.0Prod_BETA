@@ -1,6 +1,9 @@
 import axios, { type AxiosInstance, type AxiosError } from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
+// In produzione (unified service), usa URL relativo perché nginx fa proxy
+// In sviluppo, usa localhost o VITE_API_URL se configurato
+const API_BASE_URL = import.meta.env.VITE_API_URL || 
+  (import.meta.env.PROD ? '/api/v1' : 'http://localhost:3000/api/v1');
 
 export class HttpClient {
   private client: AxiosInstance;
