@@ -21,7 +21,8 @@
     "migration:run": "typeorm-ts-node-commonjs migration:run",
     "migration:revert": "typeorm-ts-node-commonjs migration:revert",
     "seed": "ts-node scripts/seed.ts",
-    "seed:services": "ts-node scripts/addServices.ts"
+    "seed:services": "ts-node scripts/addServices.ts",
+    "init:db": "ts-node scripts/initDb.ts"
   },
   "keywords": [],
   "author": "",
