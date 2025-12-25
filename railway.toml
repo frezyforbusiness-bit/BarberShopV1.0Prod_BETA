@@ -1,8 +1,6 @@
-# Railway Monorepo Configuration
-# Questo file configura i servizi del monorepo
+# Railway Configuration - Servizio Unificato (Backend + Frontend)
+# Usa Dockerfile.unified che combina backend e frontend in un unico servizio
 
 [build]
-# Railway userà Nixpacks per rilevare automaticamente il tipo di progetto
-builder = "NIXPACKS"
-
-
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile.unified"
