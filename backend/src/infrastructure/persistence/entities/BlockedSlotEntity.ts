@@ -52,3 +52,4 @@ export class BlockedSlotEntity {
   barber: BarberEntity;
 }
 
+

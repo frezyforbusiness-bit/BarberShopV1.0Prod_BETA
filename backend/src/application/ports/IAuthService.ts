@@ -13,3 +13,4 @@ export interface IAuthService {
   comparePassword(password: string, hash: string): Promise<boolean>;
 }
 
+

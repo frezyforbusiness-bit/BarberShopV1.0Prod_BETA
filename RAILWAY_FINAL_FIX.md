@@ -88,3 +88,4 @@ Quando Root Directory è `/backend`:
 
 **IMPORTANTE**: Il Root Directory è la SOLA cosa che risolve questo problema. Senza di esso, Railway non troverà mai i file nelle sottocartelle.
 
+

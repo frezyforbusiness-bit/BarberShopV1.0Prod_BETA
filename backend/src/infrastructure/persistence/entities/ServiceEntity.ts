@@ -54,3 +54,4 @@ export class ServiceEntity {
   bookings: BookingEntity[];
 }
 
+

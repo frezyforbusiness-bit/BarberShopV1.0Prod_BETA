@@ -6,3 +6,4 @@ export interface IShopRepository {
   save(shop: Shop): Promise<Shop>;
 }
 
+

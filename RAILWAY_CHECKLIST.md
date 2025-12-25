@@ -167,3 +167,4 @@ railway run --service backend npm run prisma:studio
 
 🎉 **Fatto!** Il tuo sistema è deployato su Railway!
 
+

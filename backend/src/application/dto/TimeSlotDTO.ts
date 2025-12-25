@@ -5,3 +5,4 @@ export interface TimeSlotDTO {
   durationMinutes: number;
 }
 
+

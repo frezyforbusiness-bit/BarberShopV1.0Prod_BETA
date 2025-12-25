@@ -6,3 +6,4 @@ export interface IBarberRepository {
   save(barber: Barber): Promise<Barber>;
 }
 
+

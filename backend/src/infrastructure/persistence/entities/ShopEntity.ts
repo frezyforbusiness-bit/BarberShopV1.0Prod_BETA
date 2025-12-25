@@ -53,3 +53,4 @@ export class ShopEntity {
   blockedSlots: BlockedSlotEntity[];
 }
 
+

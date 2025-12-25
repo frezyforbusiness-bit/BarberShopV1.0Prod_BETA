@@ -49,3 +49,4 @@ export class BarberEntity {
   blockedSlots: BlockedSlotEntity[];
 }
 
+

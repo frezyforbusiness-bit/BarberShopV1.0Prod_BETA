@@ -15,3 +15,4 @@ export interface IBookingRepository {
   update(booking: Booking): Promise<Booking>;
 }
 
+

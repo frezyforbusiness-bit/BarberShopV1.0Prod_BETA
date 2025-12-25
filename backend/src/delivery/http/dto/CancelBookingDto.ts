@@ -6,3 +6,4 @@ export class CancelBookingDto {
   cancellationCode: string;
 }
 
+

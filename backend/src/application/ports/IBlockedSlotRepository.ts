@@ -15,3 +15,4 @@ export interface IBlockedSlotRepository {
   delete(id: string): Promise<void>;
 }
 
+

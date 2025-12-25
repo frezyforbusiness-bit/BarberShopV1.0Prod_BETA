@@ -125,3 +125,4 @@ model BlockedSlot {
   @@index([shopId, date])
 }
 
+

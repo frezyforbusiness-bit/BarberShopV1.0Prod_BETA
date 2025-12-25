@@ -101,3 +101,4 @@ railway run --service backend npx prisma migrate deploy
 
 📖 **Guida completa**: Vedi `RAILWAY_DEPLOY.md`
 
+

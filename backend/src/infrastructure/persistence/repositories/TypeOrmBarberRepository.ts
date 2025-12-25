@@ -45,3 +45,4 @@ export class TypeOrmBarberRepository implements IBarberRepository {
   }
 }
 
+

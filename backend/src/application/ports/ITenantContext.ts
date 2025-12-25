@@ -4,3 +4,4 @@ export interface ITenantContext {
   setShopId(shopId: string): void;
 }
 
+
